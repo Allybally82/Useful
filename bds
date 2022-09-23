@@ -1,0 +1,45 @@
+%macro bds(prod=, qc=);
+
+*compare number of params;
+proc sql;
+create table params1 as 
+select distinct paramcd from &prod.;
+create table params2 as 
+select distinct paramcd from &qc.;
+quit;
+
+data prod1 qc1;
+merge params1(in=a) params2(in=b);
+by paramcd;
+if a and not b then output prod1;
+if b and not a then output qc1;
+run;
+
+proc compare base=params1 compare=params2;
+run;
+
+*compare number of obs in each param;
+proc sql;
+create table obs1 as 
+select distinct param, paramcd, count (usubjid) as count1
+from &prod.
+group by param;
+quit;
+
+proc sql;
+create table obs2 as 
+select distinct param, paramcd, count (usubjid) as count2
+from &qc.
+group by param;
+quit;
+
+data obs3;
+merge obs1 obs2;
+by param paramcd;
+if count1 ne count2 then flag='Y';
+*if count2<count1;
+run;
+
+%mend bds;
+
+%bds(prod=prod, qc=qc);
