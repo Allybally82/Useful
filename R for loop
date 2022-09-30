@@ -1,0 +1,6 @@
+   #for (i in 2:7) {
+      #freq_succ[3,i]<-chartr("-", "0", freq_succ[3,i])
+      #freq_succ[6,i]<-chartr("-", "0", freq_succ[6,i])
+      
+    #}
+    
